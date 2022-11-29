@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 
 app = Flask(__name__)
 
@@ -24,8 +24,8 @@ stores = [
                 "item_price": 79.99
             },
             {
-                "item_name": "Sony A7C Digital Mirorless Camera",
-                "item_price": 1800.00
+                "item_name": "HP Desktop AMD Razen 12GB RAM",
+                "item_price": 540.00
             }
         ]
     }
@@ -39,8 +39,17 @@ def get_stores():
     # it shouldn't be always same
     return {"stores": stores}
 
-# let's create a store and append to dictionary list
 
+# let's create a store and append to dictionary list
+@app.post("/store")
+def create_store():
+    # 01. Get the JSON data which is sending by client
+    request_data = request.get_json()
+    # 02. Append the new store name to existing dictionary
+    new_store = {"name": request_data["name"], "items" : []}
+    stores.append(new_store)
+    # 03. Return the success confirmation back to client
+    return new_store, 201
 
 
 if __name__ == '__main__':
