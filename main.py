@@ -1,6 +1,7 @@
 import uuid
 from flask import Flask, request
 from db import stores, items
+from flask_smorest import abort
 
 app = Flask(__name__)
 
@@ -17,7 +18,10 @@ def get_store_info(store_id):
     try:
         return stores[store_id]
     except KeyError:
-        return {"message": "Store not found"}, 404
+        # return {"message": "Store not found"}, 404
+        # this abort is a functionality is from smorest package
+        # we also don;t need to have return keyword here, abort will take care of sending response to client
+        abort(404, message="Store not found")
 
 
 @app.get("/items")
@@ -30,7 +34,10 @@ def get_item(item_id):
     try:
         return items[item_id]
     except KeyError:
-        return {"message": "Item not found"}, 404
+        # return {"message": "Item not found"}, 404
+        # this abort is a functionality is from smorest package
+        # we also don;t need to have return keyword here, abort will take care of sending response to client
+        abort(404, message="Item not found")
 
 
 @app.post("/store")
@@ -47,11 +54,14 @@ def create_store():
 def create_item():
     item_data = request.get_json()
     if item_data["store_id"] not in stores:
-        return {"message": "Store not found"}, 404
+        # return {"message": "Store not found"}, 404
+        # this abort is a functionality is from smorest package
+        # we also don;t need to have return keyword here, abort will take care of sending response to client
+        abort(404, message="Store not found")
 
     item_id = uuid.uuid4().hex
     item = {**item_data, "id": item_id}
-    stores[item_id] = item
+    items[item_id] = item
 
     return item, 201
 
