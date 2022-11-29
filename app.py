@@ -21,7 +21,7 @@ stores = [
         "items": [
             {
                 "item_name": "Bose Mini Speaker",
-                "item_price": 79.99
+                "item_price": 79.990
             },
             {
                 "item_name": "HP Desktop AMD Razen 12GB RAM",
@@ -32,7 +32,16 @@ stores = [
 ]
 
 
+# This will fetch all the stores and items we have in dictionary defined above
+@app.get("/stores")
+def get_stores():
+    # order of the key value might be different when it renders on the response
+    # it shouldn't be always same
+    return {"stores": stores}
+
+
 # This will fetch the store names from all those store details in dictionary
+
 @app.get("/get-store-names")
 def get_only_store_names():
     temp = []
@@ -42,12 +51,22 @@ def get_only_store_names():
     return temp
 
 
-# This will fetch all the stores and items we have in dictionary defined above
-@app.get("/stores")
-def get_stores():
-    # order of the key value might be different when it renders on the response
-    # it shouldn't be always same
-    return {"stores": stores}
+# List only the store details and items purchased
+@app.get("/store/<string:name>")
+def get_store_info(name):
+    for store in stores:
+        if store["name"] == name:
+            return store, 201
+    return {"message": "Store not found"}, 404
+
+
+# list all thr products only which are purchased in specific store
+@app.get("/store/<string:name>/item")
+def get_store_items_info(name):
+    for store in stores:
+        if store["name"] == name:
+            return {"Items": store["items"]}
+    return {"message": "Store not found to get items purchased"}, 404
 
 
 # let's create a store and append to dictionary list
@@ -76,24 +95,6 @@ def create_item(name):
             # 03. Return new item back to client after successful append to dictionary
             return new_item, 201
     return {"message": "Store not found"}, 404
-
-
-# List only the store details and items purchased
-@app.get("/store/<string:name>")
-def get_store_info(name):
-    for store in stores:
-        if store["name"] == name:
-            return store, 201
-    return {"message": "Store not found"}, 404
-
-
-# list all thr products only which are purchased in specific store
-@app.get("/store/<string:name>/item")
-def get_store_items_info(name):
-    for store in stores:
-        if store["name"] == name:
-            return {"Items": store["items"]}
-    return {"message": "Store not found to get items purchased"}, 404
 
 
 if __name__ == '__main__':
