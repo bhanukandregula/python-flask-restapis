@@ -32,6 +32,16 @@ stores = [
 ]
 
 
+# This will fetch the store names from all those store details in dictionary
+@app.get("/get-store-names")
+def get_only_store_names():
+    temp = []
+    temp.clear()
+    for store in stores:
+        temp.append(store["name"])
+    return temp
+
+
 # This will fetch all the stores and items we have in dictionary defined above
 @app.get("/stores")
 def get_stores():
