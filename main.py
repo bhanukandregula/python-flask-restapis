@@ -82,7 +82,7 @@ def create_item():
 
     # Check if the required values are present or not
     if "item_price" not in item_data or "store_id" not in item_data or "item_name" not in item_data:
-        abort(400, message="Bad request, ensure to have price, store_id and name are included in the JSON paylaod")
+        abort(400, message="Bad request, ensure to have price, store_id and name are included in the JSON payload")
 
     # check if the same item is already in the dictionary before adding as a new item
     for item in items.values():
