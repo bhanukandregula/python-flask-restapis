@@ -26,6 +26,7 @@ def get_store_info(store_id):
 
 @app.get("/items")
 def get_all_items():
+    # return "testing docker!!!"
     return {"items": list(items.values())}
 
 
