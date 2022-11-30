@@ -4,7 +4,7 @@ from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 
 # this is as our database for now
-from db import stores, items
+from db import stores
 
 # Blueprint from flask_smorest is used to divide an API into multiple segments
 blp = Blueprint("stores", __name__, description="Operations on stores")
