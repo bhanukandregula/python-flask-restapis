@@ -40,14 +40,28 @@ def get_item(item_id):
         abort(404, message="Item not found")
 
 
+# update an existing item while passing item_id
+@app.put("/item/<string:item_id>")
+def update_item(item_id):
+    item_data = request.get_json()
+    if "item_price" not in item_data or "item_name" not in item_data:
+        abort(400, message="Item not found")
+    try:
+        item = items[item_id]
+        # this is a new update operator in python
+        item |= item_data
+        return item
+    except KeyError:
+        abort(404, message="Item not found")
+
+
 @app.post("/store")
 def create_store():
     store_data = request.get_json()
 
     # check If name exists is in the JSON payload
-    if "name" not in stores:
-        abort(400,
-              message="Bad request, Endure 'name' is included in the JSON payload.")
+    if "name" not in store_data:
+        abort(400, message="Bad request, Endure 'name' is included in the JSON payload.")
 
     # Check if the store already exists, before we're adding as a new store
     for store in stores.values():
@@ -55,6 +69,7 @@ def create_store():
             abort(400, message="Store already exists")
 
     store_id = uuid.uuid4().hex
+    print(store_id)
     # ** will unpack the values in store_data and all the "id" field we added in new_store object
     store = {**store_data, "id": store_id}
     stores[store_id] = store
@@ -64,20 +79,14 @@ def create_store():
 @app.post("/item")
 def create_item():
     item_data = request.get_json()
+
     # Check if the required values are present or not
-    if (
-            "item_price" not in item_data
-            or "store_id" not in item_data
-            or "item_name" not in item_data
-    ):
+    if "item_price" not in item_data or "store_id" not in item_data or "item_name" not in item_data:
         abort(400, message="Bad request, ensure to have price, store_id and name are included in the JSON paylaod")
 
     # check if the same item is already in the dictionary before adding as a new item
     for item in items.values():
-        if (
-                item_data["item_name"] == item["item_name"]
-                and item_data["store_id"] == item["store_id"]
-        ):
+        if item_data["item_name"] == item["item_name"] and item_data["store_id"] == item["store_id"]:
             abort(400, message="Item already exists")
 
     if item_data["store_id"] not in stores:
@@ -92,5 +101,26 @@ def create_item():
 
     return item, 201
 
-    if __name__ == '__main__':
-        app.run()
+
+# delete store with store_id
+@app.delete("/store/<string:store_id>")
+def delete_store(store_id):
+    try:
+        del stores[store_id]
+        return {"message": "Store deleted"}
+    except KeyError:
+        abort(400, message="Store deleted")
+
+
+# delete an item while passing item id
+@app.delete("/item/<string:item_id>")
+def delete_item(item_id):
+    try:
+        del items[item_id]
+        return {"message": "Item deleted"}
+    except KeyError:
+        abort(404, message="Item not found")
+
+
+if __name__ == '__main__':
+    app.run()
