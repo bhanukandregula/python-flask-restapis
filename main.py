@@ -43,6 +43,17 @@ def get_item(item_id):
 @app.post("/store")
 def create_store():
     store_data = request.get_json()
+
+    # check If name exists is in the JSON payload
+    if "name" not in stores:
+        abort(400,
+              message="Bad request, Endure 'name' is included in the JSON payload.")
+
+    # Check if the store already exists, before we're adding as a new store
+    for store in stores.values():
+        if store_data["name"] == store["name"]:
+            abort(400, message="Store already exists")
+
     store_id = uuid.uuid4().hex
     # ** will unpack the values in store_data and all the "id" field we added in new_store object
     store = {**store_data, "id": store_id}
@@ -53,6 +64,22 @@ def create_store():
 @app.post("/item")
 def create_item():
     item_data = request.get_json()
+    # Check if the required values are present or not
+    if (
+            "item_price" not in item_data
+            or "store_id" not in item_data
+            or "item_name" not in item_data
+    ):
+        abort(400, message="Bad request, ensure to have price, store_id and name are included in the JSON paylaod")
+
+    # check if the same item is already in the dictionary before adding as a new item
+    for item in items.values():
+        if (
+                item_data["item_name"] == item["item_name"]
+                and item_data["store_id"] == item["store_id"]
+        ):
+            abort(400, message="Item already exists")
+
     if item_data["store_id"] not in stores:
         # return {"message": "Store not found"}, 404
         # this abort is a functionality is from smorest package
@@ -65,6 +92,5 @@ def create_item():
 
     return item, 201
 
-
-if __name__ == '__main__':
-    app.run()
+    if __name__ == '__main__':
+        app.run()
