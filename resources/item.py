@@ -3,16 +3,19 @@ from flask import request
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 
+from schemas import ItemSchema, ItemUpdateSchema
+
 # this is as our database for now
-from db import items
+from db import items, stores
 
 # Blueprint from flask_smorest is used to divide an API into multiple segments
 blp = Blueprint("items", __name__, description="Operations on items")
 
 
-@blp.get("/item/<string:item_id>")
+@blp.route("/item/<string:item_id>")
 class Items(MethodView):
 
+    @blp.response(200, ItemSchema)
     def get(self, item_id):
         try:
             return items[item_id]
@@ -26,10 +29,9 @@ class Items(MethodView):
         except KeyError:
             abort(404, message="Item not found")
 
-    def put(self, item_id):
-        item_data = request.get_json()
-        if "item_price" not in item_data or "item_name" not in item_data:
-            abort(400, message="Item not found")
+    @blp.arguments(ItemUpdateSchema)
+    @blp.response(200, ItemSchema)
+    def put(self, item_data, item_id):
         try:
             item = items[item_id]
             # this is a new update operator in python
@@ -42,17 +44,14 @@ class Items(MethodView):
 @blp.route("/item")
 class ItemList(MethodView):
 
+    @blp.response(200, ItemSchema(many=True))
     def get(self):
-        return {"items": list(items.values())}
+        # return {"items": list(items.values())}
+        return items.values()
 
-    def post(self):
-        item_data = request.get_json()
-
-        # Check if the required values are present or not
-        if "item_price" not in item_data or "store_id" not in item_data or "item_name" not in item_data:
-            abort(400, message="Bad request, ensure to have price, store_id and name are included in the JSON payload")
-
-        # check if the same item is already in the dictionary before adding as a new item
+    @blp.arguments(ItemSchema)
+    @blp.response(201, ItemSchema)
+    def post(self, item_data):
         for item in items.values():
             if item_data["item_name"] == item["item_name"] and item_data["store_id"] == item["store_id"]:
                 abort(400, message="Item already exists")
@@ -67,4 +66,4 @@ class ItemList(MethodView):
         item = {**item_data, "id": item_id}
         items[item_id] = item
 
-        return item, 201
+        return item

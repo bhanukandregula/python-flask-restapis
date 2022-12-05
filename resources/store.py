@@ -2,7 +2,7 @@ import uuid
 from flask import request
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
-
+from schemas import StoreSchema
 # this is as our database for now
 from db import stores
 
@@ -13,6 +13,7 @@ blp = Blueprint("stores", __name__, description="Operations on stores")
 # using MethodView, we can create a call where each method will route to specific endpoint
 @blp.route("/store/<string:store_id>")
 class Stores(MethodView):
+    @blp.response(200, StoreSchema)
     def get(self, store_id):
         try:
             return stores[store_id]
@@ -29,17 +30,14 @@ class Stores(MethodView):
 
 @blp.route("/store")
 class StoreList(MethodView):
+    @blp.response(200, StoreSchema(many=True))
     def get(self):
-        return {"stores": list(stores.values())}
+        # return {"stores": list(stores.values())}
+        return stores.values()
 
-    def post(self):
-        store_data = request.get_json()
-
-        # check If name exists is in the JSON payload
-        if "name" not in store_data:
-            abort(400, message="Bad request, Endure 'name' is included in the JSON payload.")
-
-        # Check if the store already exists, before we're adding as a new store
+    @blp.arguments(StoreSchema)
+    @blp.response(200, StoreSchema)
+    def post(self, store_data):
         for store in stores.values():
             if store_data["name"] == store["name"]:
                 abort(400, message="Store already exists")
@@ -49,4 +47,4 @@ class StoreList(MethodView):
         # ** will unpack the values in store_data and all the "id" field we added in new_store object
         store = {**store_data, "id": store_id}
         stores[store_id] = store
-        return store, 201
+        return store
