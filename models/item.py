@@ -22,3 +22,4 @@ class ItemModel(db.Model):
 
     # create a store object that has the above relationship
     store = db.relationship("StoreModel", back_populates="items")
+    tags = db.relationship("TagModel", back_populates="items", secondary="items_tags")
