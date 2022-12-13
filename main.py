@@ -1,9 +1,12 @@
 # import uuid
 import os
+import secrets
+
 import models
 
 from flask import Flask
 from flask_smorest import Api
+from flask_jwt_extended import JWTManager
 
 from db import db
 # since we have _init__.py in models directory, we don;t need to import each model independently
@@ -13,6 +16,7 @@ from db import db
 from resources.item import blp as ItemBlueprint
 from resources.store import blp as StoreBlueprint
 from resources.tag import blp as TagBluePrint
+from resources.user import blp as UserBluePrint
 
 
 # request
@@ -39,6 +43,11 @@ def create_app(db_url=None):
 
     api = Api(app)
 
+    # this will generate long and random secret key
+    #  secrets.SystemRandom().getrandbits(128)
+    app.config["JWT_SECRET_KEY"]= "66288125300068410897556231054177692476"
+    jwt = JWTManager(app)
+
     @app.before_first_request
     def create_tables():
         db.create_all()
@@ -46,6 +55,7 @@ def create_app(db_url=None):
     api.register_blueprint(ItemBlueprint)
     api.register_blueprint(StoreBlueprint)
     api.register_blueprint(TagBluePrint)
+    api.register_blueprint(UserBluePrint)
 
     return app
 
