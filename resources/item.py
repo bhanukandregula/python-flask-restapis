@@ -56,7 +56,7 @@ class Items(MethodView):
 @blp.route("/item")
 class ItemList(MethodView):
 
-    @jwt_required()
+    @jwt_required(refresh=True)
     @blp.response(200, ItemSchema(many=True))
     def get(self):
         # return {"items": list(items.values())}

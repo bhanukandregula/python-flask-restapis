@@ -57,6 +57,13 @@ def create_app(db_url=None):
             jsonify({"description": "The token has been revoked", "error": "token_revoked"}), 401
         )
 
+    # this will invoke, when we expect a fresh token but we receive a non-fresh token
+    @jwt.needs_fresh_token_loader
+    def token_not_fresh_callback(jwt_header, jwt_payload):
+        return (
+            jsonify({"description": "The token is not fresh", "error": "fresh_token_required"}), 401
+        )
+
     # this is a function that run everytime we create a access_token, and let us extra info to jwt
     @jwt.additional_claims_loader
     def add_claims_to_jwt(identity):
