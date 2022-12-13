@@ -1,5 +1,6 @@
 # import uuid
 import os
+import models
 
 from flask import Flask
 from flask_smorest import Api
@@ -7,7 +8,7 @@ from flask_smorest import Api
 from db import db
 # since we have _init__.py in models directory, we don;t need to import each model independently
 # just importing models will have all the files inside the folder will get imported
-import models
+
 
 from resources.item import blp as ItemBlueprint
 from resources.store import blp as StoreBlueprint

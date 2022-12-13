@@ -54,7 +54,7 @@ class Tag(MethodView):
         abort(400, message="Could not delete tag, Make sure tag is not associated with any items, then try again")
 
 
-@blp.route("/item/<string: item_id>/tag/<string: tag_id>")
+@blp.route("/item/<string:item_id>/tag/<string:tag_id>")
 class LinkTagsToItem(MethodView):
     @blp.response(201, TagSchema)
     def post(self, item_id, tag_id):
