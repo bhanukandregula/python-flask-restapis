@@ -45,8 +45,16 @@ def create_app(db_url=None):
 
     # this will generate long and random secret key
     #  secrets.SystemRandom().getrandbits(128)
-    app.config["JWT_SECRET_KEY"]= "66288125300068410897556231054177692476"
+    app.config["JWT_SECRET_KEY"] = "66288125300068410897556231054177692476"
     jwt = JWTManager(app)
+
+    # this is a function that run everytime we create a access_token, and let us extra info to jwt
+    @jwt.additional_claims_loader
+    def add_claims_to_jwt(identity):
+        # In general, we need to look in the database and see weather the user is an admin
+        if identity == 1:
+            return {"is_admin": True}
+        return {"is_admin": False}
 
     @jwt.expired_token_loader
     def expired_token_callback(jwt_header, jwt_payload):

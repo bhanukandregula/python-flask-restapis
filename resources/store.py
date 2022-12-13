@@ -2,7 +2,7 @@ import uuid
 from flask import request
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt
 from db import db
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from models import StoreModel
@@ -26,6 +26,9 @@ class Stores(MethodView):
 
     @jwt_required()
     def delete(self, store_id):
+        jwt = get_jwt()
+        if not jwt.get("is_admin"):
+            abort(401, message="Admin privileges Required to delete Store.")
         store = StoreModel.query.get_or_404(store_id)
         db.session.delete(store)
         db.session.commit()
