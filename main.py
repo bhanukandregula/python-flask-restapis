@@ -7,12 +7,10 @@ import models
 from flask import Flask, jsonify
 from flask_smorest import Api
 from flask_jwt_extended import JWTManager
-
+from blocklist import BLOCKLIST
 from db import db
 # since we have _init__.py in models directory, we don;t need to import each model independently
 # just importing models will have all the files inside the folder will get imported
-
-
 from resources.item import blp as ItemBlueprint
 from resources.store import blp as StoreBlueprint
 from resources.tag import blp as TagBluePrint
@@ -47,6 +45,17 @@ def create_app(db_url=None):
     #  secrets.SystemRandom().getrandbits(128)
     app.config["JWT_SECRET_KEY"] = "66288125300068410897556231054177692476"
     jwt = JWTManager(app)
+
+    # when we receive jwt, this function runs
+    @jwt.token_in_blocklist_loader
+    def check_if_token_in_blocklist(jwt_header, jwt_payload):
+        return jwt_payload["jti"] in BLOCKLIST
+
+    @jwt.revoked_token_loader
+    def revoked_token_callback(jwt_header, jwt_payload):
+        return (
+            jsonify({"description": "The token has been revoked", "error": "token_revoked"}), 401
+        )
 
     # this is a function that run everytime we create a access_token, and let us extra info to jwt
     @jwt.additional_claims_loader
